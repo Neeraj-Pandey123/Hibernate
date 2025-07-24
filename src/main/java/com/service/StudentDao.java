@@ -1,37 +1,17 @@
-package com.pandu;
+package com.service;
 
+import com.entities.Student;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
-public class Main {
-    public static void main(String[] args) {
-        // Create a new Student object
-        Student student = new Student();
-        student.setRollNum(110);
-        student.setsName("John Doe");
-        student.setsAge(20);
-
-        // Save the student object to the database
-        saveStudent(student);
-
-        // Fetch the student object from the database
-        Student fetchedStudent = fetchStudent(110);
-        System.out.println("Fetched Student: " + fetchedStudent);
-
-        // Update the student object in the database
-        fetchedStudent.setsName("Jane Doe Junior");
-        updateStudent(fetchedStudent);
-
-        // Fetch the updated student object from the database
-        Student updatedStudent = fetchStudent(110);
-        System.out.println("Updated Student: " + updatedStudent);
-
-        // Delete the student object from the database
-        deleteStudent(110);
-
-    }
+/**
+ * Dao - Data Access Object
+ * This class provides methods to perform CRUD operations on Student entities using Hibernate.
+ * It includes methods to save, fetch, update, and delete Student objects in the database.
+ */
+public class StudentDao {
 
     /**
      * This method saves a Student object to the database.
@@ -41,7 +21,7 @@ public class Main {
     public static void saveStudent(Student student) {
         // Create a Configuration object
         Configuration cfg = new Configuration()             // Load the configuration from hibernate.cfg.xml
-                .addAnnotatedClass(com.pandu.Student.class) // Specify the annotated class
+                .addAnnotatedClass(Student.class) // Specify the annotated class
                 .configure();                               // Load the configuration file
 
         // Build a SessionFactory
@@ -74,7 +54,7 @@ public class Main {
     public static Student fetchStudent(int rollNum) {
         // Create a Configuration object
         Configuration cfg = new Configuration()
-                .addAnnotatedClass(com.pandu.Student.class)
+                .addAnnotatedClass(Student.class)
                 .configure();
 
         // Build a SessionFactory
@@ -110,7 +90,7 @@ public class Main {
 
         // Create a configuration object
         Configuration cfg = new Configuration()
-                .addAnnotatedClass(com.pandu.Student.class)
+                .addAnnotatedClass(Student.class)
                 .configure();
 
         // Build a session factory
@@ -151,7 +131,7 @@ public class Main {
         }
         // Create a configuration object
         Configuration cfg = new Configuration()
-                .addAnnotatedClass(com.pandu.Student.class)
+                .addAnnotatedClass(Student.class)
                 .configure();
 
         // Build a session factory
@@ -175,6 +155,5 @@ public class Main {
         // close the session factory
         sessionFactory.close();
     }
-
 
 }

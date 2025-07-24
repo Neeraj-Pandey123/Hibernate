@@ -1,4 +1,4 @@
-package com.pandu;
+package com.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
