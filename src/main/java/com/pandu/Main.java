@@ -7,7 +7,29 @@ import org.hibernate.cfg.Configuration;
 
 public class Main {
     public static void main(String[] args) {
+        // Create a new Student object
+        Student student = new Student();
+        student.setRollNum(110);
+        student.setsName("John Doe");
+        student.setsAge(20);
 
+        // Save the student object to the database
+        saveStudent(student);
+
+        // Fetch the student object from the database
+        Student fetchedStudent = fetchStudent(110);
+        System.out.println("Fetched Student: " + fetchedStudent);
+
+        // Update the student object in the database
+        fetchedStudent.setsName("Jane Doe Junior");
+        updateStudent(fetchedStudent);
+
+        // Fetch the updated student object from the database
+        Student updatedStudent = fetchStudent(110);
+        System.out.println("Updated Student: " + updatedStudent);
+
+        // Delete the student object from the database
+        deleteStudent(110);
 
     }
 
@@ -49,7 +71,7 @@ public class Main {
      *
      * @param rollNum The roll number of the student to be fetched.
      */
-    public static void fetchStudent(int rollNum) {
+    public static Student fetchStudent(int rollNum) {
         // Create a Configuration object
         Configuration cfg = new Configuration()
                 .addAnnotatedClass(com.pandu.Student.class)
@@ -72,6 +94,86 @@ public class Main {
 
         // Close the factory
         factory.close();
+
+        return student;
+    }
+
+
+    /**
+     * This method updates a Student object in the database.
+     * If the student object does not exist, it will create a new entry.
+     * If the data to be updated is same as the existing data, it will not update.
+     *
+     * @param student The Student object to be updated.
+     */
+    public static void updateStudent(Student student) {
+
+        // Create a configuration object
+        Configuration cfg = new Configuration()
+                .addAnnotatedClass(com.pandu.Student.class)
+                .configure();
+
+        // Build a session factory
+        SessionFactory sessionFactory = cfg.buildSessionFactory();
+
+        // Open a sessoin
+        Session session = sessionFactory.openSession();
+
+        // Begin a transaction
+        Transaction transaction = session.beginTransaction();
+
+        // Updated the student object in the database
+        session.merge(student);
+
+        // Commit the transaction
+        transaction.commit();
+
+        // Close the session
+        session.close();
+
+        // Close the session factory
+        sessionFactory.close();
+    }
+
+
+    /**
+     * This method deletes a Student object from the database using its roll number.
+     * If the student does not exist, it will print a message.
+     *
+     * @param rollNum The roll number of the student to be deleted.
+     */
+    public static void deleteStudent(int rollNum) {
+        // Delete a student from the database
+        Student student =fetchStudent(rollNum);
+        if (student == null) {
+            System.out.println("Student with roll number " + rollNum + " does not exist.");
+            return;
+        }
+        // Create a configuration object
+        Configuration cfg = new Configuration()
+                .addAnnotatedClass(com.pandu.Student.class)
+                .configure();
+
+        // Build a session factory
+        SessionFactory sessionFactory = cfg.buildSessionFactory();
+
+        // Open a session
+        Session session = sessionFactory.openSession();
+
+        // Begin a transaction
+        Transaction transaction = session.beginTransaction();
+
+        // Delete the student object from the database
+        session.remove(student);
+
+        // Commit the transaction
+        transaction.commit();
+
+        // Close the session
+        session.close();
+
+        // close the session factory
+        sessionFactory.close();
     }
 
 
