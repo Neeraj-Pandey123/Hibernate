@@ -12,7 +12,7 @@ public class Demo_2 {
 
         // Create a new Worker Object
         Worker worker = new Worker();
-        worker.setWorkerId(103);
+        worker.setWorkerId(101);
         worker.setWorkerName("Khaman Dhokla");
         worker.setWorkerRole("Chef");
         worker.setWorkerSalary(200_000);

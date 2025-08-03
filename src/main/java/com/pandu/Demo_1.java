@@ -12,23 +12,25 @@ public class Demo_1 {
         student.setsName("John Doe");
         student.setsAge(20);
 
+        StudentDao studentDao = new StudentDao();
+
         // Save the student object to the database
-        StudentDao.saveStudent(student);
+        studentDao.saveStudent(student);
 
         // Fetch the student object from the database
-        Student fetchedStudent = StudentDao.fetchStudent(110);
+        Student fetchedStudent = studentDao.fetchStudent(110);
         System.out.println("Fetched Student: " + fetchedStudent);
 
         // Update the student object in the database
         fetchedStudent.setsName("Jane Doe Junior");
-        StudentDao.updateStudent(fetchedStudent);
+        studentDao.updateStudent(fetchedStudent);
 
         // Fetch the updated student object from the database
-        Student updatedStudent = StudentDao.fetchStudent(110);
+        Student updatedStudent = studentDao.fetchStudent(110);
         System.out.println("Updated Student: " + updatedStudent);
 
         // Delete the student object from the database
-        StudentDao.deleteStudent(110);
+        studentDao.deleteStudent(110);
 
     }
 

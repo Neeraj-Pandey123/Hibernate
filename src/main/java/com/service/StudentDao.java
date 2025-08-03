@@ -13,37 +13,46 @@ import org.hibernate.cfg.Configuration;
  */
 public class StudentDao {
 
+    private static final SessionFactory sessionFactory;
+    // Static block to initialize the SessionFactory
+    // This block is executed once when the class is loaded
+    // It sets up the Hibernate configuration and builds the session factory.
+    static {
+        try {
+            sessionFactory = new Configuration()
+                    .addAnnotatedClass(Student.class)
+                    .configure()
+                    .buildSessionFactory();
+        } catch (Throwable ex) {
+            System.err.println("Initial SessionFactory creation failed." + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+
     /**
      * This method saves a Student object to the database.
      *
      * @param student The Student object to be saved.
      */
-    public static void saveStudent(Student student) {
-        // Create a Configuration object
-        Configuration cfg = new Configuration()             // Load the configuration from hibernate.cfg.xml
-                .addAnnotatedClass(Student.class) // Specify the annotated class
-                .configure();                               // Load the configuration file
-
-        // Build a SessionFactory
-        SessionFactory factory = cfg.buildSessionFactory();
-
+    public void saveStudent(Student student) {
+        Transaction transaction = null;
         // Open a session
-        Session session = factory.openSession();
+        try (Session session = sessionFactory.openSession()) {
+            // Begin a transaction
+            transaction = session.beginTransaction();
 
-        // Begin a transaction
-        Transaction tx = session.beginTransaction();
+            // Save the student object to the database
+            session.persist(student);
 
-        // Save the student object to the database
-        session.persist(student);
-
-        // Commit the transaction
-        tx.commit();
-
-        // Close the session
-        session.close();
-
-        // Close the factory
-        factory.close();
+            // Commit the transaction
+            transaction.commit();
+        }
+        catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Rollback the transaction in case of an error
+            }
+            System.err.println("Error saving student: " + e.getMessage());
+        }
     }
 
     /**
@@ -51,30 +60,16 @@ public class StudentDao {
      *
      * @param rollNum The roll number of the student to be fetched.
      */
-    public static Student fetchStudent(int rollNum) {
-        // Create a Configuration object
-        Configuration cfg = new Configuration()
-                .addAnnotatedClass(Student.class)
-                .configure();
-
-        // Build a SessionFactory
-        SessionFactory factory = cfg.buildSessionFactory();
-
-        // Open a session
-        Session session = factory.openSession();
-
-        // Fetch the student object from the database
-        Student student = session.find(Student.class, rollNum);
-
-        // Print the fetched student object
-        System.out.println(student);
-
-        // Close the session
-        session.close();
-
-        // Close the factory
-        factory.close();
-
+    public Student fetchStudent(int rollNum) {
+        Student student = null;
+        try (Session session = sessionFactory.openSession()) {
+            // Fetch the student object from the database
+            student = session.find(Student.class, rollNum);
+        }
+        catch (Exception e) {
+            System.err.println("Error fetching student: " + e.getMessage());
+            return null; // Return null if an error occurs
+        }
         return student;
     }
 
@@ -86,33 +81,23 @@ public class StudentDao {
      *
      * @param student The Student object to be updated.
      */
-    public static void updateStudent(Student student) {
+    public void updateStudent(Student student) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            // Begin a transaction
+            transaction = session.beginTransaction();
 
-        // Create a configuration object
-        Configuration cfg = new Configuration()
-                .addAnnotatedClass(Student.class)
-                .configure();
+            // Updated the student object in the database
+            session.merge(student);
 
-        // Build a session factory
-        SessionFactory sessionFactory = cfg.buildSessionFactory();
-
-        // Open a sessoin
-        Session session = sessionFactory.openSession();
-
-        // Begin a transaction
-        Transaction transaction = session.beginTransaction();
-
-        // Updated the student object in the database
-        session.merge(student);
-
-        // Commit the transaction
-        transaction.commit();
-
-        // Close the session
-        session.close();
-
-        // Close the session factory
-        sessionFactory.close();
+            // Commit the transaction
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Rollback the transaction in case of an error
+            }
+            System.err.println("Error updating student: " + e.getMessage());
+        }
     }
 
 
@@ -122,38 +107,39 @@ public class StudentDao {
      *
      * @param rollNum The roll number of the student to be deleted.
      */
-    public static void deleteStudent(int rollNum) {
+    public void deleteStudent(int rollNum) {
         // Delete a student from the database
         Student student =fetchStudent(rollNum);
         if (student == null) {
             System.out.println("Student with roll number " + rollNum + " does not exist.");
             return;
         }
-        // Create a configuration object
-        Configuration cfg = new Configuration()
-                .addAnnotatedClass(Student.class)
-                .configure();
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            // Begin a transaction
+            transaction = session.beginTransaction();
 
-        // Build a session factory
-        SessionFactory sessionFactory = cfg.buildSessionFactory();
+            // Delete the student object from the database
+            session.remove(student);
 
-        // Open a session
-        Session session = sessionFactory.openSession();
+            // Commit the transaction
+            transaction.commit();
+        }
+        catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Rollback the transaction in case of an error
+            }
+            System.err.println("Error deleting student: " + e.getMessage());
+        }
+    }
 
-        // Begin a transaction
-        Transaction transaction = session.beginTransaction();
-
-        // Delete the student object from the database
-        session.remove(student);
-
-        // Commit the transaction
-        transaction.commit();
-
-        // Close the session
-        session.close();
-
-        // close the session factory
-        sessionFactory.close();
+    /**
+     * This method closes the session factory to release resources.
+     */
+    public static void close() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
 
 }
